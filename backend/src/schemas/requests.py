@@ -28,3 +28,13 @@ class ScheduleRequest(RunRequest):
     recipient: str = Field(min_length=1, max_length=100)
     first_at: datetime
     repeat_daily: bool = False
+
+class TonePeriodRequest(Request):
+    station: str = Field(min_length=1, max_length=120)
+    point: str = Field(min_length=1, max_length=120)
+    start: str = Field(min_length=19, max_length=19)
+    end: str = Field(min_length=19, max_length=19)
+
+class DeterminationRequest(Request):
+    station: str = Field(min_length=1, max_length=120)
+    params: dict = Field(default_factory=dict)

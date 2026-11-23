@@ -7,7 +7,8 @@ from src.config.database import Base, engine
 from src.config.settings import SEED_DEMO
 from src.domain.spec import SPEC
 from src.middlewares import errors, headers, rate
-from src.routes import distribution, identity, registry, runs
+from src.routes import distribution, identity, registry, runs, swap
+from src.services.swap import recover_interrupted
 from src.utils.wakeup import broker
 
 log = logging.getLogger(__name__)
@@ -21,6 +22,12 @@ async def lifespan(_app):
             log.info('Seeded %s', seed())
         except Exception:
             log.exception('Demo seed failed')
+    try:
+        recovered = recover_interrupted()
+        if recovered:
+            log.info('Recovered %s interrupted swap publications', recovered)
+    except Exception:
+        log.exception('Swap publication recovery failed')
     yield
     engine.dispose()
 
@@ -29,7 +36,7 @@ app = FastAPI(title=SPEC['title'], lifespan=lifespan)
 errors.install(app)
 headers.install(app)
 rate.install(app)
-for module in (identity, registry, runs):
+for module in (identity, registry, runs, swap):
     app.include_router(module.router)
 if SPEC.get('scheduled'):
     app.include_router(distribution.router)

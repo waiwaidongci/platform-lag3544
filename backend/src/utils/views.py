@@ -27,3 +27,29 @@ def schedule(item):
 def delivery(item):
     return {'id': item.id, 'run_id': item.run_id, 'recipient': item.recipient,
             'state': item.state, 'detail': item.detail, 'created_at': iso(item.created_at)}
+
+
+def swap_batch(item):
+    return {'id': item.id, 'station': item.station, 'name': item.name, 'filename': item.filename,
+            'row_count': item.row_count, 'channels': item.channels, 'checksum': item.checksum,
+            'author': item.author, 'created_at': iso(item.created_at)}
+
+
+def tone_period(item):
+    return {'id': item.id, 'station': item.station, 'point': item.point, 'start': item.start,
+            'end': item.end, 'author': item.author, 'created_at': iso(item.created_at)}
+
+
+def determination(item, detail=False):
+    item_view = {'id': item.id, 'station': item.station, 'version': item.version, 'state': item.state,
+                 'batch_id': item.batch_id, 'author': item.author, 'created_at': iso(item.created_at),
+                 'published_at': iso(item.published_at)}
+    if detail:
+        item_view.update(params=item.params, result=item.result, tone_fingerprint=item.tone_fingerprint)
+    return item_view
+
+
+def publication(item):
+    return {'id': item.id, 'determination_id': item.determination_id, 'station': item.station,
+            'detail': item.detail, 'author': item.author, 'created_at': iso(item.created_at),
+            'has_export': bool(item.export_file)}

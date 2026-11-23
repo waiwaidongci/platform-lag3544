@@ -15,3 +15,9 @@ class Review(StrEnum):
     PENDING = 'pending'
     ACCEPTED = 'accepted'
     RETURNED = 'returned'
+
+class SwapState(StrEnum):
+    COMPUTED = 'computed'
+    PUBLISHING = 'publishing'
+    PUBLISHED = 'published'
+    VOID = 'void'

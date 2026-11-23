@@ -105,6 +105,7 @@ textarea { resize:vertical; }
 .series-values li { margin:0; }
 .run-picker { margin-bottom:.8rem; }
 .decision { margin-top:.8rem; padding-left:.7rem; border-left:3px solid var(--accent); }
+.handover-station + .handover-station { margin-top:1rem; padding-top:1rem; border-top:1px solid var(--line); }
 .schedule-fields { border-top:1px solid var(--line); padding-top:.65rem; }
 .schedule-fields > :not(summary) { margin-top:.7rem; }
 body[data-page="results"] .main > div > .panel { margin-top:1rem; }

@@ -4,9 +4,29 @@ import {table} from '../components/common/table.js';
 import {REVIEW} from '../constants/enums.js';
 import {handler} from '../hooks/action.js';
 import {workspace} from '../stores/workspace.js';
-import {button, el, link, p} from '../utils/dom.js';
+import {button, el, h, link, p} from '../utils/dom.js';
 import {date} from '../utils/format.js';
 import {runPage} from './run.js';
+
+function wiringPanel(handovers) {
+  if (!handovers.length) return panel('通道接线确认', p('还没有已发布的通道判定，发布后将在此确认共有接线。', 'empty'));
+  const blocks = handovers.map(entry => {
+    const children = [p(entry.headline, 'intro-copy')];
+    if (entry.confirmed.length) {
+      children.push(table([
+        {key:'channel', label:'通道'}, {key:'point', label:'测点'},
+      ], entry.confirmed, {caption:`${entry.station} 确认接线`}));
+    } else if (entry.conflicts) {
+      children.push(p(`所有候选偏移下均无可行配法，冲突通道：${entry.conflicts.channels.join('、')}。`, 'feedback'));
+    } else {
+      children.push(p('可行配法之间没有共有的接线，暂无可确认项。', 'subtle'));
+    }
+    children.push(p(`第 ${entry.version} 版 · 发布于 ${date(entry.published_at)}`, 'subtle'),
+      link(`查看判定 #${entry.determination_id}`, `#swap/${entry.determination_id}`, {class:'quiet'}));
+    return el('section', {class:'handover-station'}, h(3, entry.station), children);
+  });
+  return panel('通道接线确认', p('只确认所有可行配法共有的接线；数据更新后未发布的旧判定已作废。', 'subtle'), blocks);
+}
 
 export async function deliveryPage(route, refresh) {
   const {spec, runs} = workspace;
@@ -28,6 +48,7 @@ export async function deliveryPage(route, refresh) {
     {key:'detail',label:'说明'}, {label:'时间',render:row=>date(row.created_at)},
     {label:'查看',render:row=>link(`运行 ${row.run_id}`,`#results/${row.run_id}`)},
   ],await workspace.deliveries(),{caption:'站内收件箱',empty:'计划到时执行，回执将在此更新。'})) : null;
-  return el('div',{}, panel(spec.pages[5], p('按运行批次下载 CSV，复核状态随报告保留。','subtle'), artifacts, message),
+  return el('div',{}, panel(spec.pages[6], p('按运行批次下载 CSV，复核状态随报告保留。','subtle'), artifacts, message),
+    wiringPanel(await workspace.handover()),
     delivery, spec.scheduled && await runPage({...route,scheduling:true},refresh));
 }

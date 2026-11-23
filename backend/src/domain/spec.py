@@ -1,5 +1,7 @@
 """站台通风噪声排查的页面配置和输入契约。"""
 
+from src.domain.swap import CALIBRATION_FIELDS, SWAP_PARAMS
+
 SPEC = {
     "title": "地铁站台通风噪声滞后排查",
     "short_name": "platform-lag",
@@ -38,7 +40,7 @@ SPEC = {
     "decision": "机电复核意见",
     "action": "提交复测安排",
     "modes": ["安排现场复测", "补采后重跑", "交班归档"],
-    "pages": ["站台排查总览", "声级与风机明细", "滞后扫描", "相关峰与缺测", "机电复核", "交班与导出"],
+    "pages": ["站台排查总览", "声级与风机明细", "滞后扫描", "相关峰与缺测", "机电复核", "通道核查", "交班与导出"],
     "fields": [
         {"key": "platform", "label": "站台", "type": "string", "required": True},
         {"key": "fan_id", "label": "风机编号", "type": "string", "required": True},
@@ -53,4 +55,18 @@ SPEC = {
     ],
     "fixture": {"sample_seconds": 10, "max_lag": 6, "min_pairs": 25},
     "axes": "图表横轴为带方向的滞后秒数，纵轴依次为 Pearson r 和有效配对数。无法计算 r 的档位见扫描表。",
+    "swap": {
+        "title": "声级计通道接反核查",
+        "sample_name": "澄湾站_声级计标定_20261122.csv",
+        "default_batch": "澄湾站下行站台 11 月 22 日检修后标定记录",
+        "fields": CALIBRATION_FIELDS,
+        "params": SWAP_PARAMS,
+        "methodology": [
+            "一个标定批次只含一个车站，CSV 每行记录一条通道在一个时刻的声级，空白读数视为缺测。",
+            "每个测点补录一段或多段试音时段，整站所有可行配法共用一档校时偏移，通道与测点一一对应。",
+            "试音时段内出现低于声级门槛的读数才排除对应接线，缺测和达到门槛的读数都不排除。",
+            "交班页面只确认所有可行配法共有的接线；任何候选偏移下都无可行配法时，列出最大匹配后仍未配上的冲突通道。",
+            "判定入库后未发布前，导入新标定批次或补录、删除试音时段都会使其作废；发布中断按同一版本恢复，重复发布不产生重复记录。",
+        ],
+    },
 }
